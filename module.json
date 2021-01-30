@@ -1,16 +1,16 @@
 {
-	"name": "lootsheetnpc5e",
-	"title": "Loot Sheet NPC 5e",
-	"description": "This module adds an additional NPC sheet which can be used for loot containers such as chests or shopkeepers.",
-	"version": "2.5.1",
+	"name": "fichaloott20",
+	"title": "Ficha Loot T20",
+	"description": "Este módulo adiciona uma ficha de NPC que pode ser usada como baú de tesouros ou loja.",
+	"version": "1.0.0",
 	"minimumCoreVersion": "0.7.7",
 	"compatibleCoreVersion": "0.7.9",
-	"author": "Jan Ole Peek (ChalkOne), Charles Miller (Kage), NonstickPanda",
-	"systems": ["dnd5e"],
-    "esmodules": ["/lootsheetnpc5e.js"],
+	"author": "Matheus Clemente (mclemente)",
+	"systems": ["tormenta20"],
+  "esmodules": ["/lootsheetnpc5e.js"],
 	"styles": ["/css/lootsheetnpc5e.css"],
 	"socket": true,
-	"url": "https://github.com/jopeek/fvtt-loot-sheet-npc-5e",
-	"manifest": "https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/module.json",
-	"download": "https://github.com/jopeek/fvtt-loot-sheet-npc-5e/archive/master.zip"
+	"url": "https://github.com/mclemente/fvtt-ficha-loot-t20",
+	"manifest": "https://raw.githubusercontent.com/mclemente/fvtt-ficha-loot-t20/master/module.json",
+	"download": "https://github.com/mclemente/fvtt-ficha-loot-t20/archive/master.zip"
 }

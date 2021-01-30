@@ -1,60 +1,56 @@
-# Loot Sheet NPC 5E
+# Ficha de Loot T20
 
-This module adds an additional NPC sheet which can be used for loot containers such as chests. It also allows spells to be automatically converted into spell scrolls by dragging them onto this sheet. 
+Este módulo adiciona uma ficha de NPC adicional que pode ser usada para recipientes, como baús. Ele também permite que magias sejam automaticamente convertidas em pergaminhos.
 
-This version was forked from Hooking's module which ended compatibility with Foundry VTT version 0.3.9 (https://gitlab.com/hooking/foundry-vtt---loot-sheet-npc). This fork should be updated by me to keep it current with Foundry VTT.
+Este módulo é uma bifurcação do módulo do jopeek (https://github.com/jopeek/fvtt-loot-sheet-npc-5e), feito para D&D 5e.
 
-### Features
+### Descrição
 
-Allows for easy assembly of items and coins to be distributed to players.
+Permite reunir itens e moedas para serem distribuídos aos jogadores.
 
-More features detailed below.
-
-##### Permissions
-Permissions can be set in the sheet for each player and range from no access (cannot open sheet) to observer (view sheet and contents) to owner (view sheet and add/remove items).
+##### Permissões
+Permissões podem ser definidas na ficha para cada jogador e variam entre Sem Acesso, Observador e Dono..
 
 ![demo_permissions](https://thumbs.gfycat.com/CaringWildKoi-size_restricted.gif)
 
-##### Shopkeeper Sheet
-Can be used to create an inventory of a shopkeeper to allow players to peruse their inventory. Prices are listed next to each item.
+##### Ficha de Loja
+Pode ser usada para criar um inventário de uma loja para permitir que os jogadores olhem os itens.
 
 ![demo_inventory](https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/images/demo_inventory.jpg)
 
-##### Price Modifier
-Prices can be adjusted by percentage for all owned items.
+###### Modificador de Preço
+Preços podem ser ajustados por porcentagem para todos os itens.
 
 ![price_modifier](https://thumbs.gfycat.com/WelloffFortunateInganue-size_restricted.gif)
 
-A Biography tab is also available.
+Uma aba de Biografia também está disponível.
 
 ![demo_biography](https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/images/demo_biography.jpg)
 
-##### Coin Distribution
-Any coins in the sheet can easily be split evenly across all players with owner access. The math and distribution is done for you via a single click if you're the GM.
+##### Distruição de Moedas
+Quaisquer moedas na ficha podem ser facilmente dividas igualmente entre todos os jogadores com acesso de Dono. O cálculo e distribuição é feito em um clique para o Mestre.
 
 ![demo_splitcoins](https://thumbs.gfycat.com/ElementaryDependentGalapagosdove-size_restricted.gif)
 
-##### Create Spell Scrolls
-Dragging of spells into the sheet will automatically turn them into scrolls.
+##### Criando Pergaminhos de Magia
+Arrastar magias para dentro da ficha vai transformá-la automaticamente em um pergaminho.
 
 ![demo_scrolls](https://thumbs.gfycat.com/LividAccurateFluke-size_restricted.gif)
 
-### Compatibility:
-- Tested with FVTT v0.5.3.
+### Compatibilidade:
+- Testado com FVTT v0.7.9.
 
-### Known Issues:
-- Dragging an item out of the sheet does not actually remove it from the sheet's inventory.
-- Price Modifier currently doesn't save owned item prices properly on Tokens, so the button will not appear on tokens. Believe this to be related to a FoundryVTT issue. 
-- Currently can't get back to original prices, especially if percentage is set to 0.
+### Problemas Conhecidos
+- Arrastar um item para fora da ficha não o remove de fato do estoque da ficha.
+- O Modificador de Preço não salva o preço do item no Token. O dev original acredita que isso seja um problema do próprio FoundryVTT. 
+- 0% no Modificador de Preço não altera o preço do item.
 
-### Installation Instructions
+### Instruções de Instalação
 
-To install a module, follow these instructions:
-
-1. Start FVTT and browse to the Game Modules tab in the Configuration and Setup menu
-2. Select the Install Module button and enter the following URL: https://raw.githubusercontent.com/jopeek/fvtt-loot-sheet-npc-5e/master/module.json
-3. Click Install and wait for installation to complete 
+1. No FVTT, vá na aba Módulos
+2. Clique no botão Instalar Módulo e coloque a seguinte URL: https://raw.githubusercontent.com/mclemente/fvtt-ficha-loot-t20/master/module.json
+3. Clique em  Instalar e espere a instalação ser completada.
 
 ### Feedback
 
-If you have any suggestions or feedback, please contact me on Discord (ChalkOne#0156).
+Sugestões ou feedback, entre em contato comigo no Discord (mclemente#5524).
