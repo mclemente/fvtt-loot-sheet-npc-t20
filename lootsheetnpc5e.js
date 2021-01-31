@@ -272,7 +272,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			itemQtyRoll.roll();
 			// console.log(`Loot Sheet | Adding ${itemQtyRoll.total} x ${newItem.name}`)
 
-			//newItem.data.quantity = itemQtyRoll.result;
+			//newItem.data.qtd = itemQtyRoll.result;
 
 			let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
 
@@ -282,27 +282,27 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				existingItem = this.actor.items.find(item => item.data.name == newItem.name);
 
 				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
-					await existingItem.update({ "data.quantity": itemQtyLimit });
+					await existingItem.update({ "data.qtd": itemQtyLimit });
 					// ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
 				} else {
-					await existingItem.update({ "data.quantity": itemQtyRoll.total });
+					await existingItem.update({ "data.qtd": itemQtyRoll.total });
 					// ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
 				}
 			}
 			else  {
 				console.log(`Loot Sheet | Item ${newItem.name} exists.`);
 				
-				let newQty = Number(existingItem.data.data.quantity) + Number(itemQtyRoll.total);
+				let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
 
-				// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.quantity)) {
+				// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.qtd)) {
 					// ui.notifications.info(`${newItem.name} already at maximum quantity (${itemQtyLimit}).`);
 				// } else
 				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(newQty)) {
 					//console.log("Exceeds existing quantity, limiting");
-					await existingItem.update({ "data.quantity": itemQtyLimit });
+					await existingItem.update({ "data.qtd": itemQtyLimit });
 					// ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
 				} else {
-					await existingItem.update({ "data.quantity": newQty });
+					await existingItem.update({ "data.qtd": newQty });
 					// ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
 				}
 				
@@ -422,10 +422,10 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		};
 
 		if (all || event.shiftKey) {
-			packet.quantity = item.data.quantity;
+			packet.quantity = item.data.qtd;
 		}
 
-		if (item.data.quantity === packet.quantity) {
+		if (item.data.qtd === packet.quantity) {
 			console.log("LootSheet5e", "Sending buy request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 			return;
@@ -477,7 +477,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 		const item = { itemId: itemId, quantity: 1 };
 		if (all || event.shiftKey) {
-			item.quantity = targetItem.data.quantity;
+			item.quantity = targetItem.data.qtd;
 		}
 
 		const packet = {
@@ -488,7 +488,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			processorId: targetGm.id
 		};
 
-		if (targetItem.data.quantity === item.quantity) {
+		if (targetItem.data.qtd === item.quantity) {
 			console.log("LootSheet5e", "Sending loot request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 			return;
@@ -587,7 +587,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		for (let i of itemTargets) {
 			const itemId = i.getAttribute("data-item-id");
 			const item = this.actor.getEmbeddedEntity("OwnedItem", itemId);
-			items.push({ itemId: itemId, quantity: item.data.quantity });
+			items.push({ itemId: itemId, quantity: item.data.qtd });
 		}
 		if (items.length === 0) {
 			return;
@@ -1075,7 +1075,7 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 			item.name = "Pergaminho de " + item.name;
 			item.type = "consumivel";
 			//item.data.preco = Math.round(10 * Math.pow(2.6, item.data.level));
-			//console.log("Loot Sheet | price of scroll", item.data.price);
+			//console.log("Loot Sheet | price of scroll", item.data.preco);
 		}
 	} else return;
 
@@ -1170,21 +1170,21 @@ Hooks.once("init", () => {
 			let item = source.getEmbeddedEntity("OwnedItem", itemId);
 
 			// Move all items if we select more than the quantity.
-			if (item.data.quantity < quantity) {
-				quantity = item.data.quantity;
+			if (item.data.qtd < quantity) {
+				quantity = item.data.qtd;
 			}
 
 			let newItem = duplicate(item);
-			const update = { _id: itemId, "data.quantity": item.data.quantity - quantity };
+			const update = { _id: itemId, "data.qtd": item.data.qtd - quantity };
 
-			if (update["data.quantity"] === 0) {
+			if (update["data.qtd"] === 0) {
 				deletes.push(itemId);
 			}
 			else {
 				updates.push(update);
 			}
 
-			newItem.data.quantity = quantity;
+			newItem.data.qtd = quantity;
 			results.push({
 				item: newItem,
 				quantity: quantity
@@ -1194,7 +1194,7 @@ Hooks.once("init", () => {
 				additions.push(newItem);
 			} else {
 				//console.log("Existing Item");
-				destItem.data.quantity = Number(destItem.data.quantity) + Number(newItem.data.quantity);
+				destItem.data.qtd = Number(destItem.data.qtd) + Number(newItem.data.qtd);
 				destUpdates.push(destItem);
 			}
 		}
@@ -1233,14 +1233,14 @@ Hooks.once("init", () => {
 		let sellItem = seller.getEmbeddedEntity("OwnedItem", itemId);
 
 		// If the buyer attempts to buy more then what's in stock, buy all the stock.
-		if (sellItem.data.quantity < quantity) {
-			quantity = sellItem.data.quantity;
+		if (sellItem.data.qtd < quantity) {
+			quantity = sellItem.data.qtd;
 		}
 
 		let sellerModifier = seller.getFlag("fichaloott20", "priceModifier");
 		if (!sellerModifier) sellerModifier = 1.0;
 
-		let itemCost = Math.round(sellItem.data.price * sellerModifier * 100) / 100;
+		let itemCost = Math.round(sellItem.data.preco * sellerModifier * 100) / 100;
 		itemCost *= quantity;
 		let buyerFunds = duplicate(buyer.data.data.detalhes.dinheiro);
 		/*
@@ -1469,7 +1469,7 @@ Hooks.once("init", () => {
 				let seller = canvas.tokens.get(data.tokenId);
 
 				if (buyer && seller && seller.actor) {
-					transaction(seller.actor, buyer, data.itemId, data.quantity);
+					transaction(seller.actor, buyer, data.itemId, data.qtd);
 				}
 				else if (!seller) {
 					errorMessageToActor(buyer, "GM not available, the GM must on the same scene to purchase an item.")
