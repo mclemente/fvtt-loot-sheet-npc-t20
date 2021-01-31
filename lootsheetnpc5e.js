@@ -1196,10 +1196,10 @@ Hooks.once("init", () => {
 		itemCost *= quantity;
 		let buyerFunds = duplicate(buyer.data.data.detalhes.dinheiro);
 		const conversionRate = { 
-			"tl": 10,
-			"to": 1, 
-			"tp": 1 / 10,
-			"tc": 1 / 100,
+			"tl": 100,
+			"to": 10, 
+			"tp": 1,
+			"tc": 1 / 10,
 		};
 		let buyerFundsAsGold = 0;
 
