@@ -312,54 +312,6 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		}
 	}
 
-	_createRollTable() {
-
-		let type = "arma";
-
-		game.packs.map(p => p.collection);
-
-		const pack = game.packs.find(p => p.collection === "tormenta20.items");
-
-		let i = 0;
-
-		let output = [];
-
-		pack.getIndex().then(index => index.forEach(function (arrayItem) {
-			var x = arrayItem._id;
-			//console.log(arrayItem);
-			i++;
-			pack.getEntity(arrayItem._id).then(packItem => {
-
-				if (packItem.type === type) {
-
-					//console.log(packItem);
-
-					let newItem = {
-						"_id": packItem._id,
-						"flags": {},
-						"type": 1,
-						"text": packItem.name,
-						"img": packItem.img,
-						"collection": "Item",
-						"resultId": packItem._id,
-						"weight": 1,
-						"range": [
-							i,
-							i
-						],
-						"drawn": false
-					};
-
-					output.push(newItem);
-
-				}
-			});
-		}));
-
-		console.log(output);
-		return;
-	}
-
 	/* -------------------------------------------- */
 
 	/**
@@ -417,22 +369,22 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			buyerId: game.user.actorId,
 			tokenId: this.token.id,
 			itemId: itemId,
-			quantity: 1,
+			qtd: 1,
 			processorId: targetGm.id
 		};
 
 		if (all || event.shiftKey) {
-			packet.quantity = item.data.qtd;
+			packet.qtd = item.data.qtd;
 		}
 
-		if (item.data.qtd === packet.quantity) {
+		if (item.data.qtd === packet.qtd) {
 			console.log("LootSheet5e", "Sending buy request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 			return;
 		}
 
 		let d = new QuantityDialog((quantity) => {
-			packet.quantity = quantity;
+			packet.qtd = quantity;
 			console.log("LootSheet5e", "Sending buy request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 		},
@@ -1243,15 +1195,12 @@ Hooks.once("init", () => {
 		let itemCost = Math.round(sellItem.data.preco * sellerModifier * 100) / 100;
 		itemCost *= quantity;
 		let buyerFunds = duplicate(buyer.data.data.detalhes.dinheiro);
-		/*
 		const conversionRate = { 
-			"pp": CONFIG.T20.currencyConversion.gp.each,
-			"gp": 1, 
-			"ep": 1 / CONFIG.T20.currencyConversion.ep.each,
-			"sp": 1 / CONFIG.T20.currencyConversion.ep.each / CONFIG.T20.currencyConversion.sp.each,
-			"cp": 1 / CONFIG.T20.currencyConversion.ep.each / CONFIG.T20.currencyConversion.sp.each / CONFIG.T20.currencyConversion.cp.each
+			"tl": 10,
+			"to": 1, 
+			"tp": 1 / 10,
+			"tc": 1 / 100,
 		};
-		*/
 		let buyerFundsAsGold = 0;
 
 		for (let currency in buyerFunds) {
@@ -1290,7 +1239,7 @@ Hooks.once("init", () => {
 					itemCostSubtracted -= itemCostSubtracted;
 				}
 
-				if (currency != "cp") {
+				if (currency != "tc") {
 					let nextKey = Object.keys(conversionRate)[Object.keys(conversionRate).indexOf(currency) + 1];
 
 					if (itemCostSubtracted % conversionRate[currency] != 0 && conversionRate[nextKey] < itemCostSubtracted && buyerFunds[nextKey] < itemCostSubtracted) {
