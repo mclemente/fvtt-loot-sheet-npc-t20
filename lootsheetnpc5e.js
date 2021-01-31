@@ -437,7 +437,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 		},
 			{
-				acceptLabel: "Purchase"
+				acceptLabel: "Comprar"
 			}
 		);
 		d.render(true);
@@ -1259,7 +1259,7 @@ Hooks.once("init", () => {
 		}
 
 		if (itemCost > buyerFundsAsGold) {
-			errorMessageToActor(buyer, `Not enough funds to purchase item.`);
+			errorMessageToActor(buyer, `Dinheiro insuficiente para comprar o item.`);
 			return;
 		}
 
@@ -1309,7 +1309,7 @@ Hooks.once("init", () => {
 		for (let m of moved) {
 			chatMessage(
 				seller, buyer,
-				`${buyer.name} purchases ${quantity} x ${m.item.name} for ${itemCost}gp.`,
+				`${buyer.name} comprou ${quantity} x ${m.item.name} por T$ ${itemCost}.`,
 				m.item);
 		}
 	}
@@ -1472,8 +1472,8 @@ Hooks.once("init", () => {
 					transaction(seller.actor, buyer, data.itemId, data.qtd);
 				}
 				else if (!seller) {
-					errorMessageToActor(buyer, "GM not available, the GM must on the same scene to purchase an item.")
-					ui.notifications.error("Player attempted to purchase an item on a different scene.");
+					errorMessageToActor(buyer, "Mestre indisponível. O Mestre precisa estar na mesma cena para você poder comprar um item.")
+					ui.notifications.error("Jogador tentou comprar um item em uma cena diferente.");
 				}
 			}
 
@@ -1485,16 +1485,16 @@ Hooks.once("init", () => {
 					lootItems(container.actor, looter, data.items);
 				}
 				else if (!container) {
-					errorMessageToActor(looter, "GM not available, the GM must on the same scene to loot an item.")
-					ui.notifications.error("Player attempted to loot an item on a different scene.");
+					errorMessageToActor(looter, "Mestre indisponível. O Mestre precisa estar na mesma cena para você poder pilhar um item.")
+					ui.notifications.error("Jogador tentou pilhar um item em uma cena diferente.");
 				}
 			}
 
 			if (data.type === "distributeCoins") {
 				let container = canvas.tokens.get(data.tokenId);
 				if (!container || !container.actor) {
-					errorMessageToActor(looter, "GM not available, the GM must on the same scene to distribute coins.")
-					return ui.notifications.error("Player attempted to distribute coins on a different scene.");
+					errorMessageToActor(looter, "Mestre indisponível. O Mestre precisa estar na mesma cena para você poder distribuir moedas.")
+					return ui.notifications.error("Jogador tentou distribuir moedas em uma cena diferente.");
 				}
 				distributeCoins(container.actor);
 			}
@@ -1503,8 +1503,8 @@ Hooks.once("init", () => {
 				let looter = game.actors.get(data.looterId);
 				let container = canvas.tokens.get(data.tokenId);
 				if (!container || !container.actor || !looter) {
-					errorMessageToActor(looter, "GM not available, the GM must on the same scene to loot coins.")
-					return ui.notifications.error("Player attempted to loot coins on a different scene.");
+					errorMessageToActor(looter, "Mestre indisponível. O Mestre precisa estar na mesma cena para você poder pilhar moedas.")
+					return ui.notifications.error("Jogador tentou pilhar moedas em uma cena diferente.");
 				}
 				lootCoins(container.actor, looter);
 			}
