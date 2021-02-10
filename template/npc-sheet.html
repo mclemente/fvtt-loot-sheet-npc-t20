@@ -111,7 +111,7 @@
                 <h3 class="gm-header"><i class="fas fa-coins"></i> Distribuição de Moedas</h3>
                 <ul class="coins-list" style="list-style: none;">
                     {{#each actor.flags.loot.currency as |c i|}}
-						{{#unless (eq i "tt")}}
+						{{#unless (eq i "tl")}}
                         <li class="denomination {{i}}">
                             <label style="text-transform: uppercase;">{{i}}:</label>
                             <span class="denomination-value">{{c}} para cada</span>
@@ -143,7 +143,7 @@
                             <ul class="currency">
                                 <li style="flex: 0 0 60px;"><h3 style="margin: 0;">Moedas</h3></li>
                                 {{#each data.detalhes.dinheiro as |c i|}}
-								{{#unless (eq i "tt")}}
+								{{#unless (eq i "tl")}}
                                 <li class="currency-item">
                                     <input type="text" name="data.detalhes.dinheiro.{{i}}" value="{{c}}" data-dtype="Number"/>
                                     <label class="denomination {{i}}">{{i}}</label>
