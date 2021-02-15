@@ -111,7 +111,6 @@
                 <h3 class="gm-header"><i class="fas fa-coins"></i> Distribuição de Moedas</h3>
                 <ul class="coins-list" style="list-style: none;">
                     {{#each actor.flags.loot.currency as |c i|}}
-						{{#unless (eq i "tl")}}
                         <li class="denomination {{i}}">
                             <label style="text-transform: uppercase;">{{i}}:</label>
                             <span class="denomination-value">{{c}} para cada</span>
