@@ -141,12 +141,10 @@
                             <ul class="currency">
                                 <li style="flex: 0 0 60px;"><h3 style="margin: 0;">Moedas</h3></li>
                                 {{#each data.detalhes.dinheiro as |c i|}}
-								{{#unless (eq i "tl")}}
                                 <li class="currency-item">
                                     <input type="text" name="data.detalhes.dinheiro.{{i}}" value="{{c}}" data-dtype="Number"/>
                                     <label class="denomination {{i}}">{{i}}</label>
                                 </li>
-								{{/unless}}
                                 {{/each}}
                                 {{#ifeq lootsheettype "Loot"}}
                                     {{#if lootCurrency}}
