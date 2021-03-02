@@ -10,14 +10,14 @@
             {{#ifeq lootsheettype "Loot"}}
                 {{#if lootAll}}
                     <div class="charbutton">
-                        <button class="loot-all" name="loot-all" value="1"><i class="fas fa-gem"></i> Pilhar Tudo</button>
+                        <button type="button" class="loot-all" name="loot-all" value="1"><i class="fas fa-gem"></i> Pilhar Tudo</button>
                     </div>
                 {{/if}}
             {{/ifeq}}
             {{#if isGM}}
                 {{#ifeq lootsheettype "Merchant"}}
                     <div class="charbutton">
-                        <button class="price-modifier" type="price-modifier" name="price-modifier" value=""><i class="fa fa-balance-scale"></i> Modificador de Preço</button>
+                        <button type="button" class="price-modifier" type="price-modifier" name="price-modifier" value=""><i class="fa fa-balance-scale"></i> Modificador de Preço</button>
                     </div>
                 {{/ifeq}}
             {{/if}}
@@ -101,7 +101,7 @@
                             <div class="flexcol"><input name="data.flags.fichaloott20.clearInventory" type="checkbox" data-dtype="boolean" {{#if data.flags.fichaloott20.clearInventory}}checked{{/if}}/></div>
                         </div>
                     </div>
-                    <button class="update-inventory" type="update-inventory" name="update-inventory" value="1"><i class="fas fa-balance-scale"></i> Atualizar Inventário da Loja</button>
+                    <button type="button" class="update-inventory" type="update-inventory" name="update-inventory" value="1"><i class="fas fa-balance-scale"></i> Atualizar Inventário da Loja</button>
                 {{/ifeq}}
             </div>
 
@@ -117,7 +117,7 @@
                         </li>
                     {{/each}}
                 </ul>
-                <button class= "split-coins" type="split-coins" name="split-coins" value="1"><i class="fa fa-coins"></i> Distribuir por {{actor.flags.loot.observerCount}}</button>
+                <button type="button" class= "split-coins" type="split-coins" name="split-coins" value="1"><i class="fa fa-coins"></i> Distribuir por {{actor.flags.loot.observerCount}}</button>
             {{/ifeq}}
 
         </section>
@@ -149,7 +149,7 @@
                                 {{#ifeq lootsheettype "Loot"}}
                                     {{#if lootCurrency}}
                                         <div class="item-controls">
-                                            <a class="currency-loot" title="Pilar Moedas"><i class="fas fa-gem"></i></a>
+                                            <a class="currency-loot" title="Pilhar Moedas"><i class="fas fa-gem"></i></a>
                                         </div>
                                     {{/if}}
                                 {{/ifeq}}
@@ -173,7 +173,7 @@
                                         <h3 class="item-name">{{section.label}}</h3>
                                         {{#if ../owner}}
                                             <div class="item-controls">
-                                                <a class="item-control item-create" title="Create Item" data-type="{{section.type}}">
+                                                <a class="item-control item-create" title="Criar Item" data-type="{{section.type}}">
                                                     <i class="fas fa-plus"></i> Adicionar
                                                 </a>
                                             </div>
@@ -203,18 +203,18 @@
                                         
                                         <div class="item-controls">
                                             {{#ifeq ../../lootsheettype "Loot"}}
-												<a class="item-control item-lootall" title="Loot Stack"><i class="far fa-gem"></i></a>
-                                                <a class="item-control item-loot" title="Loot Item"><i class="fas fa-gem"></i></a>
+												<a class="item-control item-lootall" title="Pilhar Itens"><i class="far fa-gem"></i></a>
+                                                <a class="item-control item-loot" title="Pilhar Item"><i class="fas fa-gem"></i></a>
                                             {{/ifeq}}
 
                                             {{#ifeq ../../lootsheettype "Merchant"}}
-												<a class="item-control item-buyall" title="Buy Stack"><i class="fas fa-coins"></i></a>
-                                                <a class="item-control item-buy" title="Buy Item"><i class="fas fa-dollar-sign"></i></a>
+												<a class="item-control item-buyall" title="Comprar Pilha"><i class="fas fa-coins"></i></a>
+                                                <a class="item-control item-buy" title="Comprar Item"><i class="fas fa-dollar-sign"></i></a>
                                             {{/ifeq}}
 
                                             {{#if ../../owner}}
-                                                <a class="item-control item-edit" title="Edit Item"><i class="fas fa-edit"></i></a>
-                                                <a class="item-control item-delete" title="Delete Item"><i class="fas fa-trash"></i></a>
+                                                <a class="item-control item-edit" title="Editar Item"><i class="fas fa-edit"></i></a>
+                                                <a class="item-control item-delete" title="Deletar Item"><i class="fas fa-trash"></i></a>
                                             {{/if}}
                                         </div>
                                     </li>
