@@ -129,12 +129,12 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	}
 
 	/* -------------------------------------------- */
-	/*  Event Listeners and Handlers
+	/* Event Listeners and Handlers
 	/* -------------------------------------------- */
 
 	/**
 	 * Activate event listeners using the prepared sheet HTML
-	 * @param html {HTML}   The prepared HTML object ready to be rendered into the DOM
+	 * @param html {HTML} The prepared HTML object ready to be rendered into the DOM
 	 */
 	activateListeners(html) {
 		super.activateListeners(html);
@@ -289,7 +289,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 					// ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
 				}
 			}
-			else  {
+			else {
 				console.log(`Loot Sheet | Item ${newItem.name} exists.`);
 				
 				let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
@@ -1195,11 +1195,12 @@ Hooks.once("init", () => {
 		let itemCost = Math.round(sellItem.data.preco * sellerModifier * 100) / 100;
 		itemCost *= quantity;
 		let buyerFunds = duplicate(buyer.data.data.detalhes.dinheiro);
-		const conversionRate = { 
+		if (buyerFunds["tt"] != undefined) delete buyerFunds["tt"];
+		const conversionRate = {
 			"tl": 100,
 			"to": 10, 
 			"tp": 1,
-			"tc": 1 / 10,
+			"tc": 1 / 10
 		};
 		let buyerFundsAsGold = 0;
 
@@ -1224,7 +1225,8 @@ Hooks.once("init", () => {
 				buyerFundsAsGold -= buyerFunds[currency] * conversionRate[currency];
 			}
 			*/
-		} else {
+		}
+		else {
 			let itemCostSubtracted = itemCost;
 			let giveChange = false;
 
