@@ -236,22 +236,22 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		const itemQtyFormula = this.actor.getFlag(moduleNamespace, "itemQty") || "1";
 		const itemQtyLimit = this.actor.getFlag(moduleNamespace, "itemQtyLimit") || "0";
 		const clearInventory = this.actor.getFlag(moduleNamespace, "clearInventory");
-        const itemOnlyOnce = this.actor.getFlag(moduleNamespace, "itemOnlyOnce");
-        const reducedVerbosity = game.settings.get("lootsheetnpc5e", "reduceUpdateVerbosity");
+		const itemOnlyOnce = this.actor.getFlag(moduleNamespace, "itemOnlyOnce");
+		const reducedVerbosity = game.settings.get("lootsheetnpc5e", "reduceUpdateVerbosity");
 
-        let shopQtyRoll = new Roll(shopQtyFormula);
-        shopQtyRoll.roll();
+		let shopQtyRoll = new Roll(shopQtyFormula);
+		shopQtyRoll.roll();
 
 		let rolltable = game.tables.getName(rolltableName);
 		if (!rolltable) {
 			//console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
 			return ui.notifications.error(`Não há Tabela de Rolagem com o nome "${rolltableName}".`);
-        }
+		}
 
-        if (itemOnlyOnce) {
-            if (rolltable.results.length < shopQtyRoll.total)  {
-                return ui.notifications.error(`Não é possível criar uma loja com ${shopQtyRoll.total} entradas únicas se a tabela de rolagem tem apenas ${rolltable.results.length} itens`);
-            }
+		if (itemOnlyOnce) {
+			if (rolltable.results.length < shopQtyRoll.total)  {
+				return ui.notifications.error(`Não é possível criar uma loja com ${shopQtyRoll.total} entradas únicas se a tabela de rolagem tem apenas ${rolltable.results.length} itens`);
+			}
 		}
 
 		//console.log(rolltable);
@@ -849,11 +849,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				zeroCurrency = {};
 
 			for (let c in lootCurrency) {
-                zeroCurrency[c] = {
-                    'type': currencySplit[c].type,
-                    'label': currencySplit[c].type,
-                    'value': currencyRemainder[c]
-                }
+				zeroCurrency[c] = {
+					'type': currencySplit[c].type,
+					'label': currencySplit[c].type,
+					'value': currencyRemainder[c]
+				}
 				containerActor.update({
 					"data.detalhes.dinheiro": zeroCurrency
 				});
@@ -1127,7 +1127,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		let currencySplit = duplicate(actorData.data.detalhes.dinheiro);
 		for (let c in currencySplit) {
 			if (observers.length)
-                if (currencySplit[c] != null) currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
+				if (currencySplit[c] != null) currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
 			else
 				currencySplit[c] = 0
 		}
@@ -1595,9 +1595,9 @@ Hooks.once("init", () => {
 			// add msg for chat description
 			if (sheetCurrency[c].value) {
 				//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
-                msg.push(` ${sheetCurrency[c].value} ${c} coins`)
+				msg.push(` ${sheetCurrency[c].value} ${c} coins`)
 			}
-            if (sheetCurrency[c].value != null) {
+			if (sheetCurrency[c].value != null) {
 				// Add currency to permitted actor
 				newCurrency[c] = parseInt(currency[c] || 0) + parseInt(sheetCurrency[c].value);
 				looter.update({
