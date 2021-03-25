@@ -241,6 +241,12 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		if (!rolltable) {
 			//console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
 			return ui.notifications.error(`Não há Tabela de Rolagem com o nome "${rolltableName}".`);
+        }
+
+        if (itemOnlyOnce) {
+            if (rolltable.results.length < shopQtyRoll.total)  {
+                return ui.notifications.error(`Não é possível criar uma loja com ${shopQtyRoll.total} entradas únicas se a tabela de rolagem tem apenas ${rolltable.results.length} itens`);
+            }
 		}
 
 		//console.log(rolltable);
@@ -801,11 +807,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		for (let c in currencySplit) {
 			if (observers.length) {
 				// calculate remainder
-				currencyRemainder[c] = (currencySplit[c] % observers.length);
+				currencyRemainder[c] = (currencySplit[c].value % observers.length);
 
-				currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
+				currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
 			}
-			else currencySplit[c] = 0;
+			else currencySplit[c].value = 0;
 		}
 
 		// add currency to actors existing coins
@@ -815,18 +821,18 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 			msg = [];
 			let currency = u.data.data.detalhes.dinheiro,
-			newCurrency = duplicate(u.data.data.detalhes.dinheiro);
+				newCurrency = duplicate(u.data.data.detalhes.dinheiro);
 
 			for (let c in currency) {
 				// add msg for chat description
-				if (currencySplit[c]) {
+				if (currencySplit[c].value) {
 					//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
 					let moedas = c.toUpperCase();
-					msg.push(` ${currencySplit[c]} ${moedas}`)
+					msg.push(` ${currencySplit[c].value} ${moedas}`)
 				}
 				if (currencySplit[c] != null) {
 					// Add currency to permitted actor
-					newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c];
+					newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c].value;
 					u.update({
 						'data.detalhes.dinheiro': newCurrency
 					});
@@ -838,7 +844,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				zeroCurrency = {};
 
 			for (let c in lootCurrency) {
-				zeroCurrency[c] = 0;
+                zeroCurrency[c] = {
+                    'type': currencySplit[c].type,
+                    'label': currencySplit[c].type,
+                    'value': currencyRemainder[c]
+                }
 				containerActor.update({
 					"data.detalhes.dinheiro": zeroCurrency
 				});
@@ -1112,7 +1122,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		let currencySplit = duplicate(actorData.data.detalhes.dinheiro);
 		for (let c in currencySplit) {
 			if (observers.length)
-				currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
+                if (currencySplit[c] != null) currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
 			else
 				currencySplit[c] = 0
 		}
@@ -1580,9 +1590,9 @@ Hooks.once("init", () => {
 			// add msg for chat description
 			if (sheetCurrency[c].value) {
 				//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
-				msg.push(` ${sheetCurrency[c].value} ${c}`)
+                msg.push(` ${sheetCurrency[c].value} ${c} coins`)
 			}
-			if (sheetCurrency[c] != null) {
+            if (sheetCurrency[c].value != null) {
 				// Add currency to permitted actor
 				newCurrency[c] = parseInt(currency[c] || 0) + parseInt(sheetCurrency[c].value);
 				looter.update({
