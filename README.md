@@ -7,7 +7,7 @@ Este módulo é um fork do Loot Sheet NPC 5e do jopeek (https://github.com/jopee
 ## Descrição
 Permite reunir itens e moedas para serem distribuídos aos jogadores.
 
-Mais informações de como usar, leia a [wiki](https://github.com/mclemente/fvtt-ficha-loot-t20/wiki).
+Para mais informações de como usar, leia a [wiki](https://github.com/mclemente/fvtt-ficha-loot-t20/wiki).
 
 ## Compatibilidade:
 - Testado com FVTT v0.7.9.
