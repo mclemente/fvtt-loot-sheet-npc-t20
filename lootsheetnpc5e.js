@@ -812,11 +812,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		for (let c in currencySplit) {
 			if (observers.length) {
 				// calculate remainder
-				currencyRemainder[c] = (currencySplit[c].value % observers.length);
+				currencyRemainder[c] = (currencySplit[c] % observers.length);
 
-				currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
+				currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
 			}
-			else currencySplit[c].value = 0;
+			else currencySplit[c] = 0;
 		}
 
 		// add currency to actors existing coins
@@ -830,14 +830,14 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 			for (let c in currency) {
 				// add msg for chat description
-				if (currencySplit[c].value) {
+				if (currencySplit[c]) {
 					//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
 					let moedas = c.toUpperCase();
-					msg.push(` ${currencySplit[c].value} ${moedas}`)
+					msg.push(` ${currencySplit[c]} ${moedas}`)
 				}
 				if (currencySplit[c] != null) {
 					// Add currency to permitted actor
-					newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c].value;
+					newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c];
 					u.update({
 						'data.detalhes.dinheiro': newCurrency
 					});
@@ -1127,7 +1127,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		let currencySplit = duplicate(actorData.data.detalhes.dinheiro);
 		for (let c in currencySplit) {
 			if (observers.length)
-				if (currencySplit[c] != null) currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
+				if (currencySplit[c] != null) currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
 			else
 				currencySplit[c] = 0
 		}
@@ -1511,12 +1511,12 @@ Hooks.once("init", () => {
 		for (let c in currencySplit) {
 			if (observers.length) {
 				// calculate remainder
-				currencyRemainder[c] = (currencySplit[c].value % observers.length);
+				currencyRemainder[c] = (currencySplit[c] % observers.length);
 				//console.log("Remainder: " + currencyRemainder[c]);
 
-				currencySplit[c].value = Math.floor(currencySplit[c].value / observers.length);
+				currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
 			}
-			else currencySplit[c].value = 0;
+			else currencySplit[c] = 0;
 		}
 
 		// add currency to actors existing coins
@@ -1533,13 +1533,13 @@ Hooks.once("init", () => {
 
 			for (let c in currency) {
 				// add msg for chat description
-				if (currencySplit[c].value) {
+				if (currencySplit[c]) {
 					//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
-					msg.push(` ${currencySplit[c].value} ${c}`)
+					msg.push(` ${currencySplit[c]} ${c}`)
 				}
 
 				// Add currency to permitted actor
-				newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c].value;
+				newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c];
 
 				//console.log("Loot Sheet | New Currency", newCurrency);
 				u.update({
