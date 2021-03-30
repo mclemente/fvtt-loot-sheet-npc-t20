@@ -2,7 +2,7 @@
 	"name": "fichaloott20",
 	"title": "Ficha Loot T20",
 	"description": "Este módulo adiciona uma ficha de NPC que pode ser usada como baú de tesouros ou loja.",
-	"version": "1.0.11",
+	"version": "1.0.12",
 	"minimumCoreVersion": "0.7.7",
 	"compatibleCoreVersion": "0.7.9",
 	"author": "Matheus Clemente (mclemente)",

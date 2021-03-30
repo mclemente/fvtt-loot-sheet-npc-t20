@@ -237,7 +237,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		const itemQtyLimit = this.actor.getFlag(moduleNamespace, "itemQtyLimit") || "0";
 		const clearInventory = this.actor.getFlag(moduleNamespace, "clearInventory");
 		const itemOnlyOnce = this.actor.getFlag(moduleNamespace, "itemOnlyOnce");
-		const reducedVerbosity = game.settings.get("lootsheetnpc5e", "reduceUpdateVerbosity");
+		const reducedVerbosity = game.settings.get("fichaloott20", "reduceUpdateVerbosity");
 
 		let shopQtyRoll = new Roll(shopQtyFormula);
 		shopQtyRoll.roll();
