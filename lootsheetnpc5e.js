@@ -443,7 +443,6 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				}
 			}
 		}
-	}
 
 	_createRollTable() {
 
@@ -1699,4 +1698,3 @@ Hooks.once("init", () => {
 
 
 });
-
