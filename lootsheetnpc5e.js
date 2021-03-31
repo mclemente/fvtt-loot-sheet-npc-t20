@@ -11,12 +11,12 @@ class LootSheet5eNPCHelper {
 		static getLootPermissionForPlayer(actorData, player) {
 				let defaultPermission = actorData.permission.default;
 				if (player.data._id in actorData.permission) {
-						//console.log("Loot Sheet | Found individual actor permission");
+						//console.log("Ficha Loot | Found individual actor permission");
 						return actorData.permission[player.data._id];
-						//console.log("Loot Sheet | assigning " + actorData.permission[player.data._id] + " permission to hidden field");
+						//console.log("Ficha Loot | assigning " + actorData.permission[player.data._id] + " permission to hidden field");
 				}
 				else if (typeof defaultPermission !== "undefined") {
-						//console.log("Loot Sheet | default permissions", actorData.permission.default);
+						//console.log("Ficha Loot | default permissions", actorData.permission.default);
 						return defaultPermission;
 				}
 				return 0;
@@ -56,7 +56,7 @@ class QuantityDialog extends Dialog {
 					var quantity = document.getElementById('quantity').value
 
 					if (isNaN(quantity)) {
-						// console.log("Loot Sheet | Item quantity invalid");
+						// console.log("Ficha Loot | Item quantity invalid");
 						return ui.notifications.error(`Quantidade inválida.`);
 					}
 
@@ -217,7 +217,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	async _merchantSettingChange(event, html) {
 		event.preventDefault();
-		console.log("Loot Sheet | Merchant settings changed");
+		console.log("Ficha Loot | Merchant settings changed");
 
 		const moduleNamespace = "fichaloott20";
 		const expectedKeys = ["rolltable", "shopQty", "itemQty", "itemQtyLimit", "clearInventory", "itemOnlyOnce"];
@@ -226,7 +226,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 
 		if (expectedKeys.indexOf(targetKey) === -1) {
-			console.log(`Loot Sheet | Error changing stettings for "${targetKey}".`);
+			console.log(`Ficha Loot | Error changing stettings for "${targetKey}".`);
 			return ui.notifications.error(`Error changing stettings for "${targetKey}".`);
 		}
 
@@ -267,7 +267,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 		let rolltable = game.tables.getName(rolltableName);
 		if (!rolltable) {
-			//console.log(`Loot Sheet | No Rollable Table found with name "${rolltableName}".`);
+			//console.log(`Ficha Loot | No Rollable Table found with name "${rolltableName}".`);
 			return ui.notifications.error(`Não há Tabela de Rolagem com o nome "${rolltableName}".`);
 		}
 
@@ -286,7 +286,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			//console.log(currentItems);
 		}
 
-		console.log(`Loot Sheet | Adding ${shopQtyRoll.result} new items`);
+		console.log(`Ficha Loot | Adding ${shopQtyRoll.result} new items`);
 
 		if (!itemOnlyOnce) {
 			for (let i = 0; i < shopQtyRoll.total; i++) {
@@ -307,7 +307,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 					newItem = await items.getEntity(rollResult.results[0].resultId);
 				}
 				if (!newItem || newItem === null) {
-					//console.log(`Loot Sheet | No item found "${rollResult.results[0].resultId}".`);
+					//console.log(`Ficha Loot | No item found "${rollResult.results[0].resultId}".`);
 					return ui.notifications.error(`Nenhum item encontrado "${rollResult.results[0].resultId}".`);
 				}
 
@@ -318,7 +318,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 			let itemQtyRoll = new Roll(itemQtyFormula);
 			itemQtyRoll.roll();
-			// console.log(`Loot Sheet | Adding ${itemQtyRoll.total} x ${newItem.name}`)
+			// console.log(`Ficha Loot | Adding ${itemQtyRoll.total} x ${newItem.name}`)
 
 			//newItem.data.qtd = itemQtyRoll.result;
 
@@ -326,7 +326,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 			if (existingItem === null) {
 				await this.actor.createEmbeddedEntity("OwnedItem", newItem);
-				console.log(`Loot Sheet | ${newItem.name} does not exist.`);
+				console.log(`Ficha Loot | ${newItem.name} não existe.`);
 				existingItem = this.actor.items.find(item => item.data.name == newItem.name);
 
 				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
@@ -338,7 +338,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				}
 			}
 			else {
-				console.log(`Loot Sheet | Item ${newItem.name} exists.`);
+				console.log(`Ficha Loot | Item ${newItem.name} existe.`);
 				
 				let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
 
@@ -349,10 +349,10 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 					//console.log("Exceeds existing quantity, limiting");
 					await existingItem.update({ "data.qtd": itemQtyLimit });
 					if (!reducedVerbosity) ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
-				} else {
+				}
+				else {
 					await existingItem.update({ "data.qtd": newQty });
 					if (!reducedVerbosity) ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
-						}
 				}
 			}
 		}
@@ -443,6 +443,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				}
 			}
 		}
+	}
 
 	_createRollTable() {
 
@@ -500,7 +501,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	async _changeSheetType(event, html) {
 		event.preventDefault();
-		console.log("Loot Sheet | Sheet Type changed", event);
+		console.log("Ficha Loot | Sheet Type changed", event);
 
 		let currentActor = this.actor;
 
@@ -520,7 +521,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	_buyItem(event, all = 0) {
 		event.preventDefault();
-		console.log("Loot Sheet | Buy Item clicked");
+		console.log("Ficha Loot | Buy Item clicked");
 
 		let targetGm = null;
 		game.users.forEach((u) => {
@@ -537,7 +538,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			return ui.notifications.error(`Você deve comprar o item de um token.`);
 		}
 		if (!game.user.actorId) {
-			console.log("Loot Sheet | No active character for user");
+			console.log("Ficha Loot | No active character for user");
 			return ui.notifications.error(`Não há personagens ativos para o usuário.`);
 		}
 
@@ -583,7 +584,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	_lootItem(event, all = 0) {
 		event.preventDefault();
-		console.log("Loot Sheet | Loot Item clicked");
+		console.log("Ficha Loot | Loot Item clicked");
 
 		let targetGm = null;
 		game.users.forEach((u) => {
@@ -600,7 +601,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			return ui.notifications.error(`Você precisa pilhar itens de um token.`);
 		}
 		if (!game.user.actorId) {
-			console.log("Loot Sheet | No active character for user");
+			console.log("Ficha Loot | No active character for user");
 			return ui.notifications.error(`Não há personagens ativos para o usuário.`);
 		}
 
@@ -649,7 +650,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		if (!game.settings.get("fichaloott20", "lootCurrency")) {
 			return;
 		}
-		console.log("Loot Sheet | Loot Coins clicked");
+		console.log("Ficha Loot | Loot Coins clicked");
 
 		let targetGm = null;
 		game.users.forEach((u) => {
@@ -666,7 +667,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			return ui.notifications.error(`Você precisa pilhar moedas de um token.`);
 		}
 		if (!game.user.actorId) {
-			console.log("Loot Sheet | No active character for user");
+			console.log("Ficha Loot | No active character for user");
 			return ui.notifications.error(`Não há personagens ativos para o usuário.`);
 		}
 
@@ -688,7 +689,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	_lootAll(event, html) {
 		event.preventDefault();
-		console.log("Loot Sheet | Loot All clicked");
+		console.log("Ficha Loot | Loot All clicked");
 		this._lootCoins(event);
 
 		let targetGm = null;
@@ -706,7 +707,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			return ui.notifications.error(`Você precisa pilhar itens de um token.`);
 		}
 		if (!game.user.actorId) {
-			console.log("Loot Sheet | No active character for user");
+			console.log("Ficha Loot | No active character for user");
 			return ui.notifications.error(`Não há personagens ativos para o usuário.`);
 		}
 
@@ -745,7 +746,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	async _priceModifier(event) {
 		event.preventDefault();
-		//console.log("Loot Sheet | Price Modifier clicked");
+		//console.log("Ficha Loot | Price Modifier clicked");
 		//console.log(this.actor.isToken);
 
 		let priceModifier = await this.actor.getFlag("fichaloott20", "priceModifier");
@@ -770,11 +771,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				two: {
 					icon: '<i class="fas fa-times"></i>',
 					label: "Cancelar",
-					callback: () => console.log("Loot Sheet | Price Modifier Cancelled")
+					callback: () => console.log("Ficha Loot | Price Modifier Cancelled")
 				}
 			},
 			default: "two",
-			close: () => console.log("Loot Sheet | Price Modifier Closed")
+			close: () => console.log("Ficha Loot | Price Modifier Closed")
 		});
 		d.render(true);
 	}
@@ -787,7 +788,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	_distributeCoins(event) {
 		event.preventDefault();
-		//console.log("Loot Sheet | Split Coins clicked");
+		//console.log("Ficha Loot | Split Coins clicked");
 
 		let targetGm = null;
 		game.users.forEach((u) => {
@@ -863,7 +864,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			for (let c in currency) {
 				// add msg for chat description
 				if (currencySplit[c]) {
-					//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
+					//console.log("Ficha Loot | New currency for " + c, currencySplit[c]);
 					let moedas = c.toUpperCase();
 					msg.push(` ${currencySplit[c]} ${moedas}`)
 				}
@@ -917,7 +918,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 		event.preventDefault();
 
-		//console.log("Loot Sheet | this.actor.data.permission", this.actor.data.permission);
+		//console.log("Ficha Loot | this.actor.data.permission", this.actor.data.permission);
 
 
 		let actorData = this.actor.data;
@@ -928,18 +929,18 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		let level = parseFloat(field.val());
 		if (typeof level === undefined) level = 0;
 
-		//console.log("Loot Sheet | current level " + level);
+		//console.log("Ficha Loot | current level " + level);
 
 		const levels = [0, 3, 2]; //const levels = [0, 2, 3];
 
 		let idx = levels.indexOf(level),
 			newLevel = levels[(idx === levels.length - 1) ? 0 : idx + 1];
 
-		//console.log("Loot Sheet | new level " + newLevel);
+		//console.log("Ficha Loot | new level " + newLevel);
 
 		let playerId = field[0].name;
 
-		//console.log("Loot Sheet | Current actor: " + playerId);
+		//console.log("Ficha Loot | Current actor: " + playerId);
 
 		this._updatePermissions(actorData, playerId, newLevel, event);
 
@@ -997,7 +998,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 */
 	_prepareItems(actorData) {
 
-		//console.log("Loot Sheet | Prepare Features");
+		//console.log("Ficha Loot | Prepare Features");
 		// Actions
 		const features = {
 			weapons: {
@@ -1022,7 +1023,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			},
 		};
 
-		//console.log("Loot Sheet | Prepare Items");
+		//console.log("Ficha Loot | Prepare Items");
 		// Iterate through items, allocating to containers
 		let items = actorData.items;
 		items = items.sort(function (a, b) {
@@ -1030,7 +1031,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		});
 		for (let i of items) {
 			i.img = i.img || DEFAULT_TOKEN;
-			//console.log("Loot Sheet | item", i);
+			//console.log("Ficha Loot | item", i);
 
 			// Features
 			if (i.type === "arma") features.weapons.items.push(i);
@@ -1097,11 +1098,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 				for (let player of players)
 				{
-						//console.log("Loot Sheet | Checking user " + player.data.name, player);
+						//console.log("Ficha Loot | Checking user " + player.data.name, player);
 
 						// get the name of the primary actor for a player
 						const actor = game.actors.get(player.data.character);
-						//console.log("Loot Sheet | Checking actor", actor);
+						//console.log("Ficha Loot | Checking actor", actor);
 						
 						if (actor) {
 								player.actor = actor.data.name;
@@ -1116,7 +1117,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				}
 
 				//Set icons and permission texts for html
-								//console.log("Loot Sheet | lootPermission", player.lootPermission);
+								//console.log("Ficha Loot | lootPermission", player.lootPermission);
 				if (commonPlayersPermission < 0) {
 										commonPlayersPermission = player.lootPermission;
 								} else if (commonPlayersPermission !== player.lootPermission) {
@@ -1162,9 +1163,9 @@ Actors.registerSheet("tormenta20", LootSheet5eNPC, {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-	// console.log("Loot Sheet | actor", actor);
-	// console.log("Loot Sheet | item", item);
-	// console.log("Loot Sheet | data", data);
+	// console.log("Ficha Loot | actor", actor);
+	// console.log("Ficha Loot | item", item);
+	// console.log("Ficha Loot | data", data);
 
 	if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
 
@@ -1174,18 +1175,18 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 	// If the actor is using the LootSheet5eNPC then check in the item is a spell and if so update the name.
 	if ((actor.data.flags.core || {}).sheetClass === "tormenta20.LootSheet5eNPC") {
 		if (item.type === "magia") {
-			//console.log("Loot Sheet | dragged spell item", item);
+			//console.log("Ficha Loot | dragged spell item", item);
 
 			let changeScrollIcon = game.settings.get("fichaloott20", "changeScrollIcon");
 
 			if (changeScrollIcon) item.img = "modules/fichaloott20/icons/Scroll" + item.data.circulo + ".webp";
 
-			//console.log("Loot Sheet | check changeScrollIcon", changeScrollIcon);
+			//console.log("Ficha Loot | check changeScrollIcon", changeScrollIcon);
 
 			item.name = "Pergaminho de " + item.name;
 			item.type = "consumivel";
 			//item.data.preco = Math.round(10 * Math.pow(2.6, item.data.level));
-			//console.log("Loot Sheet | price of scroll", item.data.preco);
+			//console.log("Ficha Loot | price of scroll", item.data.preco);
 		}
 	} else return;
 
@@ -1492,24 +1493,24 @@ Hooks.once("init", () => {
 		let observers = [];
 				let players = game.users.players;
 
-		//console.log("Loot Sheet | actorData", actorData);
+		//console.log("Ficha Loot | actorData", actorData);
 		// Calculate observers
 				for (let player of players) {
 						let playerPermission = LootSheet5eNPCHelper.getLootPermissionForPlayer(actorData, player);
 						if (player != "default" && playerPermission >= 2) {
-				//console.log("Loot Sheet | player", player);
+				//console.log("Ficha Loot | player", player);
 				let actor = game.actors.get(player.data.character);
-				//console.log("Loot Sheet | actor", actor);
+				//console.log("Ficha Loot | actor", actor);
 				if (actor !== null && (player.data.role === 1 || player.data.role === 2)) observers.push(actor);
 			}
 		}
 
-		//console.log("Loot Sheet | observers", observers);
+		//console.log("Ficha Loot | observers", observers);
 		if (observers.length === 0) return;
 
 		// Calculate split of currency
 		let currencySplit = duplicate(actorData.data.detalhes.dinheiro);
-		//console.log("Loot Sheet | Currency data", currencySplit);
+		//console.log("Ficha Loot | Currency data", currencySplit);
 
 		// keep track of the remainder
 		let currencyRemainder = {};
@@ -1528,26 +1529,26 @@ Hooks.once("init", () => {
 		// add currency to actors existing coins
 		let msg = [];
 		for (let u of observers) {
-			//console.log("Loot Sheet | u of observers", u);
+			//console.log("Ficha Loot | u of observers", u);
 			if (u === null) continue;
 
 			msg = [];
 			let currency = u.data.data.detalhes.dinheiro,
 				newCurrency = duplicate(u.data.data.detalhes.dinheiro);
 
-			//console.log("Loot Sheet | Current Currency", currency);
+			//console.log("Ficha Loot | Current Currency", currency);
 
 			for (let c in currency) {
 				// add msg for chat description
 				if (currencySplit[c]) {
-					//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
+					//console.log("Ficha Loot | New currency for " + c, currencySplit[c]);
 					msg.push(` ${currencySplit[c]} ${c}`)
 				}
 
 				// Add currency to permitted actor
 				newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c];
 
-				//console.log("Loot Sheet | New Currency", newCurrency);
+				//console.log("Ficha Loot | New Currency", newCurrency);
 				u.update({
 					'data.detalhes.dinheiro': newCurrency
 				});
@@ -1588,19 +1589,19 @@ Hooks.once("init", () => {
 		let actorData = containerActor.data
 
 		let sheetCurrency = actorData.data.detalhes.dinheiro;
-		//console.log("Loot Sheet | Currency data", currency);
+		//console.log("Ficha Loot | Currency data", currency);
 
 		// add currency to actors existing coins
 		let msg = [];
 		let currency = looter.data.data.detalhes.dinheiro,
 			newCurrency = duplicate(looter.data.data.detalhes.dinheiro);
 
-		//console.log("Loot Sheet | Current Currency", currency);
+		//console.log("Ficha Loot | Current Currency", currency);
 
 		for (let c in currency) {
 			// add msg for chat description
 			if (sheetCurrency[c].value) {
-				//console.log("Loot Sheet | New currency for " + c, currencySplit[c]);
+				//console.log("Ficha Loot | New currency for " + c, currencySplit[c]);
 				msg.push(` ${sheetCurrency[c].value} ${c} coins`)
 			}
 			if (sheetCurrency[c].value != null) {
@@ -1643,7 +1644,7 @@ Hooks.once("init", () => {
 	}
 
 	game.socket.on(LootSheet5eNPC.SOCKET, data => {
-		console.log("Loot Sheet | Socket Message: ", data);
+		console.log("Ficha Loot | Socket Message: ", data);
 		if (game.user.isGM && data.processorId === game.user.id) {
 			if (data.type === "buy") {
 				let buyer = game.actors.get(data.buyerId);
@@ -1691,7 +1692,7 @@ Hooks.once("init", () => {
 			}
 		}
 		if (data.type === "error" && data.targetId === game.user.actorId) {
-			console.log("Loot Sheet | Transaction Error: ", data.message);
+			console.log("Ficha Loot | Transaction Error: ", data.message);
 			return ui.notifications.error(data.message);
 		}
 	});
