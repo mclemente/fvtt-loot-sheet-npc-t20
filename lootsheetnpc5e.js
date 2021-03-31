@@ -1,4 +1,27 @@
 import ActorSheetT20NPC from "../../systems/tormenta20/module/actor/sheet/npc.js";
+import ItemT20 from "../../systems/tormenta20/module/item/entity.js";
+
+class LootSheet5eNPCHelper {
+    /**
+     * Retrieve the loot permission for a player, given the current actor data.
+     * 
+     * It first tries to get an entry from the actor's permissions, if none is found it uses default, otherwise returns 0.
+     * 
+     */
+    static getLootPermissionForPlayer(actorData, player) {
+        let defaultPermission = actorData.permission.default;
+        if (player.data._id in actorData.permission) {
+            //console.log("Loot Sheet | Found individual actor permission");
+            return actorData.permission[player.data._id];
+            //console.log("Loot Sheet | assigning " + actorData.permission[player.data._id] + " permission to hidden field");
+        }
+        else if (typeof defaultPermission !== "undefined") {
+            //console.log("Loot Sheet | default permissions", actorData.permission.default);
+            return defaultPermission;
+        }
+        return 0;
+    }
+}
 
 class QuantityDialog extends Dialog {
 	constructor(callback, options) {
@@ -286,6 +309,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				if (!newItem || newItem === null) {
 					//console.log(`Loot Sheet | No item found "${rollResult.results[0].resultId}".`);
 					return ui.notifications.error(`Nenhum item encontrado "${rollResult.results[0].resultId}".`);
+				}
+
+				if (newItem.type === "spell") {
+                    newItem = await ItemT20.createScrollFromSpell(newItem)
+                }
 			}
 
 			let itemQtyRoll = new Roll(itemQtyFormula);
@@ -399,6 +427,10 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 					return ui.notifications.error(`No item found "${rolltable.results[index].resultId}".`);
 				}
 			
+                if (newItem.type === "magia") {
+                    newItem = await ItemT20.createScrollFromSpell(newItem)
+                }
+
 				await this.actor.createEmbeddedEntity("OwnedItem", newItem);
 				let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
 
@@ -793,10 +825,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	_hackydistributeCoins(containerActor) {
 		let actorData = containerActor.data
 		let observers = [];
+		let players = game.users.players;
 		// Calculate observers
-		for (let u in actorData.permission) {
-			if (u != "default" && actorData.permission[u] >= 2) {
-				let player = game.users.get(u);
+        for (let player of players) {
+            let playerPermission = LootSheet5eNPCHelper.getLootPermissionForPlayer(actorData, player);
+            if (player != "default" && playerPermission >= 2) {
 				let actor = game.actors.get(player.data.character);
 				if (actor !== null && (player.data.role === 1 || player.data.role === 2)) observers.push(actor);
 			}
@@ -1055,71 +1088,45 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 	 * @private
 	 */
 	_prepareGMSettings(actorData) {
-
-		const players = [],
+        const playerData = [],
 			observers = [];
-		let users = game.users.entities;
+      
+        let players = game.users.players;
 		let commonPlayersPermission = -1;
 
 		//console.log("Loot Sheet _prepareGMSettings | actorData.permission", actorData.permission);
 
-		for (let u of users) {
-			//console.log("Loot Sheet | Checking user " + u.data.name, u);
+        for (let player of players)
+        {
+            //console.log("Loot Sheet | Checking user " + player.data.name, player);
 
-			//check if the user is a player 
-			if (u.data.role === 1 || u.data.role === 2) {
+            // get the name of the primary actor for a player
+            const actor = game.actors.get(player.data.character);
+            //console.log("Loot Sheet | Checking actor", actor);
+            
+            if (actor) {
+                player.actor = actor.data.name;
+                player.actorId = actor.data._id;
+                player.playerId = player.data._id;
 
-				// get the name of the primary actor for a player
-				const actor = game.actors.get(u.data.character);
-				//console.log("Loot Sheet | Checking actor", actor);
+                player.lootPermission = LootSheet5eNPCHelper.getLootPermissionForPlayer(actorData, player);
 
-				if (actor) {
-
-					u.actor = actor.data.name;
-					u.actorId = actor.data._id;
-					u.playerId = u.data._id;
-
-					//Check if there are default permissions to the actor
-					if (typeof actorData.permission.default !== "undefined") {
-
-						//console.log("Loot Sheet | default permissions", actorData.permission.default);
-
-						u.lootPermission = actorData.permission.default;
-
-						if (actorData.permission.default >= 2 && !observers.includes(actor.data._id)) {
-
-							observers.push(actor.data._id);
-						}
-
-					} else {
-
-						u.lootPermission = 0;
-						//console.log("Loot Sheet | assigning 0 permission to hidden field");
-					}
-
-					//if the player has some form of permission to the object update the actorData
-					if (u.data._id in actorData.permission && !observers.includes(actor.data._id)) {
-						//console.log("Loot Sheet | Found individual actor permission");
-
-						u.lootPermission = actorData.permission[u.data._id];
-						//console.log("Loot Sheet | assigning " + actorData.permission[u.data._id] + " permission to hidden field");
-
-						if (actorData.permission[u.data._id] >= 2) {
-							observers.push(actor.data._id);
-						}
-					}
-
-					//Set icons and permission texts for html
-					//console.log("Loot Sheet | lootPermission", u.lootPermission);
-					if (commonPlayersPermission < 0) {
-						commonPlayersPermission = u.lootPermission;
-					} else if (commonPlayersPermission !== u.lootPermission) {
-						commonPlayersPermission = 999;
-					}
-					u.icon = this._getPermissionIcon(u.lootPermission);
-					u.lootPermissionDescription = this._getPermissionDescription(u.lootPermission);
-					players.push(u);
+                if (player.lootPermission >= 2 && !observers.includes(actor.data._id))
+                {
+						observers.push(actor.data._id);
 				}
+
+				//Set icons and permission texts for html
+                //console.log("Loot Sheet | lootPermission", player.lootPermission);
+				if (commonPlayersPermission < 0) {
+                    commonPlayersPermission = player.lootPermission;
+                } else if (commonPlayersPermission !== player.lootPermission) {
+					commonPlayersPermission = 999;
+				}
+                
+                player.icon = this._getPermissionIcon(player.lootPermission);
+                player.lootPermissionDescription = this._getPermissionDescription(player.lootPermission);
+                playerData.push(player);
 			}
 		}
 
@@ -1133,7 +1140,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		}
 
 		let loot = {}
-		loot.players = players;
+        loot.players = playerData;
 		loot.observerCount = observers.length;
 		loot.currency = currencySplit;
 		loot.playersPermission = commonPlayersPermission;
@@ -1141,7 +1148,6 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		loot.playersPermissionDescription = this._getPermissionDescription(commonPlayersPermission);
 		actorData.flags.loot = loot;
 	}
-
 
 }
 
@@ -1173,7 +1179,7 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
 			let changeScrollIcon = game.settings.get("fichaloott20", "changeScrollIcon");
 
-			if (changeScrollIcon) item.img = "modules/fichaloott20/icons/Scroll" + item.data.circulo + ".png";
+			if (changeScrollIcon) item.img = "modules/fichaloott20/icons/Scroll" + item.data.circulo + ".webp";
 
 			//console.log("Loot Sheet | check changeScrollIcon", changeScrollIcon);
 
@@ -1485,12 +1491,13 @@ Hooks.once("init", () => {
 	function distributeCoins(containerActor) {
 		let actorData = containerActor.data
 		let observers = [];
+        let players = game.users.players;
+
 		//console.log("Loot Sheet | actorData", actorData);
 		// Calculate observers
-		for (let u in actorData.permission) {
-			if (u != "default" && actorData.permission[u] >= 2) {
-				//console.log("Loot Sheet | u in actorData.permission", u);
-				let player = game.users.get(u);
+        for (let player of players) {
+            let playerPermission = LootSheet5eNPCHelper.getLootPermissionForPlayer(actorData, player);
+            if (player != "default" && playerPermission >= 2) {
 				//console.log("Loot Sheet | player", player);
 				let actor = game.actors.get(player.data.character);
 				//console.log("Loot Sheet | actor", actor);
