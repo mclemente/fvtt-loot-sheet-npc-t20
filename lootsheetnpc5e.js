@@ -312,47 +312,47 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				}
 
 				if (newItem.type === "spell") {
-										newItem = await ItemT20.createScrollFromSpell(newItem)
-								}
-			}
-
-			let itemQtyRoll = new Roll(itemQtyFormula);
-			itemQtyRoll.roll();
-			// console.log(`Ficha Loot | Adding ${itemQtyRoll.total} x ${newItem.name}`)
-
-			//newItem.data.qtd = itemQtyRoll.result;
-
-			let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
-
-			if (existingItem === null) {
-				await this.actor.createEmbeddedEntity("OwnedItem", newItem);
-				console.log(`Ficha Loot | ${newItem.name} não existe.`);
-				existingItem = this.actor.items.find(item => item.data.name == newItem.name);
-
-				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
-					await existingItem.update({ "data.qtd": itemQtyLimit });
-					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
-				} else {
-					await existingItem.update({ "data.qtd": itemQtyRoll.total });
-					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
+					newItem = await ItemT20.createScrollFromSpell(newItem)
 				}
-			}
-			else {
-				console.log(`Ficha Loot | Item ${newItem.name} existe.`);
-				
-				let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
 
-				// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.qtd)) {
-					// if (!reducedVerbosity) ui.notifications.info(`${newItem.name} already at maximum quantity (${itemQtyLimit}).`);
-				// } else
-				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(newQty)) {
-					//console.log("Exceeds existing quantity, limiting");
-					await existingItem.update({ "data.qtd": itemQtyLimit });
-					if (!reducedVerbosity) ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
+				let itemQtyRoll = new Roll(itemQtyFormula);
+				itemQtyRoll.roll();
+				// console.log(`Ficha Loot | Adding ${itemQtyRoll.total} x ${newItem.name}`)
+
+				//newItem.data.qtd = itemQtyRoll.result;
+
+				let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
+
+				if (existingItem === null) {
+					await this.actor.createEmbeddedEntity("OwnedItem", newItem);
+					console.log(`Ficha Loot | ${newItem.name} não existe.`);
+					existingItem = this.actor.items.find(item => item.data.name == newItem.name);
+
+					if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
+						await existingItem.update({ "data.qtd": itemQtyLimit });
+						if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
+					} else {
+						await existingItem.update({ "data.qtd": itemQtyRoll.total });
+						if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
+					}
 				}
 				else {
-					await existingItem.update({ "data.qtd": newQty });
-					if (!reducedVerbosity) ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
+					console.log(`Ficha Loot | Item ${newItem.name} existe.`);
+					
+					let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
+
+					// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.qtd)) {
+						// if (!reducedVerbosity) ui.notifications.info(`${newItem.name} already at maximum quantity (${itemQtyLimit}).`);
+					// } else
+					if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(newQty)) {
+						//console.log("Exceeds existing quantity, limiting");
+						await existingItem.update({ "data.qtd": itemQtyLimit });
+						if (!reducedVerbosity) ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
+					}
+					else {
+						await existingItem.update({ "data.qtd": newQty });
+						if (!reducedVerbosity) ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
+					}
 				}
 			}
 		}
@@ -417,7 +417,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 				if (rolltable.results[index].collection === "Item") {
 					newItem = game.items.get(rolltable.results[index].resultId);
-			}
+				}
 				else {
 					//Try to find it in the compendium
 					const items = game.packs.get(rolltable.results[index].collection);
@@ -427,9 +427,9 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 					return ui.notifications.error(`No item found "${rolltable.results[index].resultId}".`);
 				}
 			
-								if (newItem.type === "magia") {
-										newItem = await ItemT20.createScrollFromSpell(newItem)
-								}
+				if (newItem.type === "magia") {
+					newItem = await ItemT20.createScrollFromSpell(newItem)
+				}
 
 				await this.actor.createEmbeddedEntity("OwnedItem", newItem);
 				let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
@@ -437,7 +437,8 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
 					await existingItem.update({ "data.qtd": itemQtyLimit });
 					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
-				} else {
+				}
+				else {
 					await existingItem.update({ "data.qtd": itemQtyRoll.total });
 					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
 				}
