@@ -1155,7 +1155,8 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 //Register the loot sheet
 Actors.registerSheet("tormenta20", LootSheet5eNPC, {
 	types: ["npc"],
-	makeDefault: false
+	makeDefault: false,
+	label: "Ficha Loot T20"
 });
 
 
