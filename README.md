@@ -19,5 +19,3 @@ Para mais informações de como usar, leia a [wiki](https://github.com/mclemente
 
 ## Feedback
 Sugestões ou feedback, entre em contato comigo no Discord (mclemente#5524).
-
-![image](https://cdn.awsli.com.br/950/950939/arquivos/PIX.png) 5b7b13b0-cbdd-4a7b-80e5-fa4920355da7
