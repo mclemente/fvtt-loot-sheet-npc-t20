@@ -11,12 +11,9 @@ class LootSheet5eNPCHelper {
 		static getLootPermissionForPlayer(actorData, player) {
 				let defaultPermission = actorData.permission.default;
 				if (player.data._id in actorData.permission) {
-						//console.log("Ficha Loot | Found individual actor permission");
 						return actorData.permission[player.data._id];
-						//console.log("Ficha Loot | assigning " + actorData.permission[player.data._id] + " permission to hidden field");
 				}
 				else if (typeof defaultPermission !== "undefined") {
-						//console.log("Ficha Loot | default permissions", actorData.permission.default);
 						return defaultPermission;
 				}
 				return 0;
@@ -56,7 +53,6 @@ class QuantityDialog extends Dialog {
 					var quantity = document.getElementById('quantity').value
 
 					if (isNaN(quantity)) {
-						// console.log("Ficha Loot | Item quantity invalid");
 						return ui.notifications.error(`Quantidade inválida.`);
 					}
 
@@ -121,10 +117,8 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 
 		// Prepare isGM attribute in sheet Data
 
-		//console.log("game.user: ", game.user);
 		if (game.user.isGM) sheetData.isGM = true;
 		else sheetData.isGM = false;
-		//console.log("sheetData.isGM: ", sheetData.isGM);
 		console.log(this.actor);
 
 		let lootsheettype = await this.actor.getFlag("fichaloott20", "lootsheettype");
@@ -140,16 +134,16 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		}
 
 		let totalWeight = 0;
-		this.actor.data.items.forEach((item)=>totalWeight += Math.round((item.data.qtd * item.data.peso * 100) / 100));
+		this.actor.data.items.contents.forEach((item)=>totalWeight += Math.round((item.data.data.qtd * item.data.data.peso * 100) / 100));
 
 		let totalPrice = 0;
-		this.actor.data.items.forEach((item)=>totalPrice += Math.round((item.data.qtd * item.data.preco * priceModifier * 100) / 100));
+		this.actor.data.items.contents.forEach((item)=>totalPrice += Math.round((item.data.data.qtd * item.data.data.preco * priceModifier * 100) / 100));
 
 		let totalQuantity = 0;
-		this.actor.data.items.forEach((item)=>totalQuantity += Math.round((item.data.qtd * 100) / 100));
+		this.actor.data.items.contents.forEach((item)=>totalQuantity += Math.round((item.data.data.qtd * 100) / 100));
 
 		sheetData.lootsheettype = lootsheettype;
-		sheetData.totalItems = this.actor.data.items.length;
+		sheetData.totalItems = this.actor.data.items.contents.length;
 		sheetData.totalWeight = totalWeight.toLocaleString('en');
 		sheetData.totalPrice = "T$ " + totalPrice.toLocaleString('en');
 		sheetData.totalQuantity = totalQuantity;
@@ -282,165 +276,75 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		if (clearInventory) {
 
 			let currentItems = this.actor.data.items.map(i => i._id);
-			await this.actor.deleteEmbeddedEntity("OwnedItem", currentItems);
+			await this.actor.deleteEmbeddedDocuments("Item", currentItems);
 			//console.log(currentItems);
 		}
 
 		console.log(`Ficha Loot | Adding ${shopQtyRoll.result} new items`);
 
-		if (!itemOnlyOnce) {
-			for (let i = 0; i < shopQtyRoll.total; i++) {
-				const rollResult = rolltable.roll();
-				//console.log(rollResult);
-				let newItem = null;
-	
-				if (rollResult.results[0].collection === "Item") {
-					newItem = game.items.get(rollResult.results[0].resultId);
-				}
-				else {
-					//Try to find it in the compendium
-					const items = game.packs.get(rollResult.results[0].collection);
-					//console.log(items);
-					//dnd5eitems.getIndex().then(index => console.log(index));
-					//let newItem = dnd5eitems.index.find(e => e.id === rollResult.results[0].resultId);
-					//items.getEntity(rollResult.results[0].resultId).then(i => console.log(i));
-					newItem = await items.getEntity(rollResult.results[0].resultId);
-				}
-				if (!newItem || newItem === null) {
-					//console.log(`Ficha Loot | No item found "${rollResult.results[0].resultId}".`);
-					return ui.notifications.error(`Nenhum item encontrado "${rollResult.results[0].resultId}".`);
-				}
+		for (let i = 0; i < shopQtyRoll.total; i++) {
+			const rollResult = await rolltable.roll();
+			//console.log(rollResult.results[0]);
+			let newItem = null;
 
-				if (newItem.type === "spell") {
-					newItem = await ItemT20.createScrollFromSpell(newItem)
-				}
-
-				let itemQtyRoll = new Roll(itemQtyFormula);
-				itemQtyRoll.roll();
-				// console.log(`Ficha Loot | Adding ${itemQtyRoll.total} x ${newItem.name}`)
-
-				//newItem.data.qtd = itemQtyRoll.result;
-
-				let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
-
-				if (existingItem === null) {
-					await this.actor.createEmbeddedEntity("OwnedItem", newItem);
-					console.log(`Ficha Loot | ${newItem.name} não existe.`);
-					existingItem = this.actor.items.find(item => item.data.name == newItem.name);
-
-					if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
-						await existingItem.update({ "data.qtd": itemQtyLimit });
-						if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
-					} else {
-						await existingItem.update({ "data.qtd": itemQtyRoll.total });
-						if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
-					}
-				}
-				else {
-					console.log(`Ficha Loot | Item ${newItem.name} existe.`);
-					
-					let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
-
-					// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.qtd)) {
-						// if (!reducedVerbosity) ui.notifications.info(`${newItem.name} already at maximum quantity (${itemQtyLimit}).`);
-					// } else
-					if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(newQty)) {
-						//console.log("Exceeds existing quantity, limiting");
-						await existingItem.update({ "data.qtd": itemQtyLimit });
-						if (!reducedVerbosity) ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
-					}
-					else {
-						await existingItem.update({ "data.qtd": newQty });
-						if (!reducedVerbosity) ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
-					}
-				}
+			if (rollResult.results[0].data.collection === "Item") {
+				newItem = game.items.get(rollResult.results[0].data.resultId);
 			}
-		}
-		else {
-			// Get a list which contains indexes of all possible results
-
-			const rolltableIndexes = []
-
-			// Add one entry for each weight an item has
-			for (let index in [...Array(rolltable.results.length).keys()]) {
-				let numberOfEntries = rolltable.data.results[index].weight
-				for (let i = 0; i < numberOfEntries; i++) {
-					rolltableIndexes.push(index);
-				}	 
+			else {
+				//Try to find it in the compendium
+				const items = game.packs.get(rollResult.results[0].data.collection);
+				//console.log(items);
+				//dnd5eitems.getIndex().then(index => console.log(index));
+				//let newItem = dnd5eitems.index.find(e => e.id === rollResult.results[0].resultId);
+				//items.getEntity(rollResult.results[0].resultId).then(i => console.log(i));
+				newItem = await items.getEntity(rollResult.results[0].data.resultId);
 			}
-			
-			// Shuffle the list of indexes
-			var currentIndex = rolltableIndexes.length, temporaryValue, randomIndex;
-		
-			// While there remain elements to shuffle...
-			while (0 !== currentIndex) {
-		
-				// Pick a remaining element...
-				randomIndex = Math.floor(Math.random() * currentIndex);
-				currentIndex -= 1;
-			
-				// And swap it with the current element.
-				temporaryValue = rolltableIndexes[currentIndex];
-				rolltableIndexes[currentIndex] = rolltableIndexes[randomIndex];
-				rolltableIndexes[randomIndex] = temporaryValue;
+			if (!newItem || newItem === null) {
+				//console.log(`Ficha Loot | No item found "${rollResult.results[0].resultId}".`);
+				return ui.notifications.error(`Nenhum item encontrado "${rollResult.results[0].resultId}".`);
 			}
 
-			// console.log(`Rollables: ${rolltableIndexes}`)
-
-			let indexesToUse = [];
-			let numberOfAdditionalItems = 0;
-			// Get the first N entries from our shuffled list. Those are the indexes of the items in the roll table we want to add
-			// But because we added multiple entries per index to account for weighting, we need to increase our list length until we got enough unique items
-			while (true)
-			{
-				let usedEntries = rolltableIndexes.slice(0, shopQtyRoll.total + numberOfAdditionalItems);
-				// console.log(`Distinct: ${usedEntries}`);
-				let distinctEntris = [...new Set(usedEntries)];
-				
-				if (distinctEntris.length < shopQtyRoll.total) {
-					numberOfAdditionalItems++;
-					// console.log(`numberOfAdditionalItems: ${numberOfAdditionalItems}`);
-					continue;
-				}
-				
-				indexesToUse = distinctEntris
-				// console.log(`indexesToUse: ${indexesToUse}`)
-				break;
+			if (newItem.type === "spell") {
+				newItem = await ItemT20.createScrollFromSpell(newItem)
 			}
-		
-			for (const index of indexesToUse)
-			{
-				let itemQtyRoll = new Roll(itemQtyFormula);
-				itemQtyRoll.roll();
 
-				let newItem = null
+			let itemQtyRoll = new Roll(itemQtyFormula);
+			itemQtyRoll.roll();
+			// console.log(`Ficha Loot | Adding ${itemQtyRoll.total} x ${newItem.name}`)
 
-				if (rolltable.results[index].collection === "Item") {
-					newItem = game.items.get(rolltable.results[index].resultId);
-				}
-				else {
-					//Try to find it in the compendium
-					const items = game.packs.get(rolltable.results[index].collection);
-					newItem = await items.getEntity(rolltable.results[index].resultId);
-				}
-				if (!newItem || newItem === null) {
-					return ui.notifications.error(`No item found "${rolltable.results[index].resultId}".`);
-				}
-			
-				if (newItem.type === "magia") {
-					newItem = await ItemT20.createScrollFromSpell(newItem)
-				}
+			//newItem.data.qtd = itemQtyRoll.result;
 
-				await this.actor.createEmbeddedEntity("OwnedItem", newItem);
-				let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
+			let existingItem = this.actor.items.find(item => item.data.name == newItem.name);
+
+			if (existingItem === undefined) {
+				await this.actor.createEmbeddedDocuments("Item", [newItem.toObject()]);
+				console.log(`Ficha Loot | ${newItem.name} não existe.`);
+				existingItem = this.actor.items.find(item => item.data.name == newItem.name);
 
 				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(itemQtyRoll.total)) {
 					await existingItem.update({ "data.qtd": itemQtyLimit });
 					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyLimit} x ${newItem.name}.`);
-				}
-				else {
+				} else {
 					await existingItem.update({ "data.qtd": itemQtyRoll.total });
 					if (!reducedVerbosity) ui.notifications.info(`Added new ${itemQtyRoll.total} x ${newItem.name}.`);
+				}
+			}
+			else {
+				console.log(`Ficha Loot | Item ${newItem.name} existe.`, existingItem);
+				
+				let newQty = Number(existingItem.data.data.qtd) + Number(itemQtyRoll.total);
+
+				// if (itemQtyLimit > 0 && Number(itemQtyLimit) === Number(existingItem.data.data.qtd)) {
+					// if (!reducedVerbosity) ui.notifications.info(`${newItem.name} already at maximum quantity (${itemQtyLimit}).`);
+				// } else
+				if (itemQtyLimit > 0 && Number(itemQtyLimit) < Number(newQty)) {
+					//console.log("Exceeds existing quantity, limiting");
+					await existingItem.update({ "data.qtd": itemQtyLimit });
+					if (!reducedVerbosity) ui.notifications.info(`Added additional quantity to ${newItem.name} to the specified maximum of ${itemQtyLimit}.`);
+				}
+				else {
+					await existingItem.update({ "data.qtd": newQty });
+					if (!reducedVerbosity) ui.notifications.info(`Added additional ${itemQtyRoll.total} quantity to ${newItem.name}.`);
 				}
 			}
 		}
@@ -544,7 +448,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		}
 
 		let itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
-		const item = this.actor.getEmbeddedEntity("OwnedItem", itemId);
+		const item = this.actor.getEmbeddedEntity("Item", itemId);
 
 		const packet = {
 			type: "buy",
@@ -556,10 +460,10 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		};
 
 		if (all || event.shiftKey) {
-			packet.qtd = item.data.qtd;
+			packet.qtd = item.data.data.qtd;
 		}
 
-		if (item.data.qtd === packet.qtd) {
+		if (item.data.data.qtd === packet.qtd) {
 			console.log("LootSheet5e", "Sending buy request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 			return;
@@ -607,11 +511,11 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 		}
 
 		const itemId = $(event.currentTarget).parents(".item").attr("data-item-id");
-		const targetItem = this.actor.getEmbeddedEntity("OwnedItem", itemId);
+		const targetItem = this.actor.getEmbeddedEntity("Item", itemId);
 
 		const item = { itemId: itemId, quantity: 1 };
 		if (all || event.shiftKey) {
-			item.quantity = targetItem.data.qtd;
+			item.quantity = targetItem.data.data.qtd;
 		}
 
 		const packet = {
@@ -622,7 +526,7 @@ class LootSheet5eNPC extends ActorSheetT20NPC {
 			processorId: targetGm.id
 		};
 
-		if (targetItem.data.qtd === item.quantity) {
+		if (targetItem.data.data.qtd === item.quantity) {
 			console.log("LootSheet5e", "Sending loot request to " + targetGm.name, packet);
 			game.socket.emit(LootSheet5eNPC.SOCKET, packet);
 			return;
@@ -1165,10 +1069,6 @@ Actors.registerSheet("tormenta20", LootSheet5eNPC, {
  */
 Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 
-	// console.log("Ficha Loot | actor", actor);
-	// console.log("Ficha Loot | item", item);
-	// console.log("Ficha Loot | data", data);
-
 	if (!actor) throw new Error(`Parent Actor ${actor._id} not found`);
 
 	// Check if Actor is an NPC
@@ -1177,18 +1077,12 @@ Hooks.on('preCreateOwnedItem', (actor, item, data) => {
 	// If the actor is using the LootSheet5eNPC then check in the item is a spell and if so update the name.
 	if ((actor.data.flags.core || {}).sheetClass === "tormenta20.LootSheet5eNPC") {
 		if (item.type === "magia") {
-			//console.log("Ficha Loot | dragged spell item", item);
-
 			let changeScrollIcon = game.settings.get("fichaloott20", "changeScrollIcon");
 
 			if (changeScrollIcon) item.img = "modules/fichaloott20/icons/Scroll" + item.data.circulo + ".webp";
 
-			//console.log("Ficha Loot | check changeScrollIcon", changeScrollIcon);
-
 			item.name = "Pergaminho de " + item.name;
 			item.type = "consumivel";
-			//item.data.preco = Math.round(10 * Math.pow(2.6, item.data.level));
-			//console.log("Ficha Loot | price of scroll", item.data.preco);
 		}
 	} else return;
 
@@ -1280,7 +1174,6 @@ Hooks.once("init", () => {
 		}
 	}
 
-
 	function errorMessageToActor(target, message) {
 		game.socket.emit(LootSheet5eNPC.SOCKET, {
 			type: "error",
@@ -1298,15 +1191,15 @@ Hooks.once("init", () => {
 		for (let i of items) {
 			let itemId = i.itemId;
 			let quantity = i.quantity;
-			let item = source.getEmbeddedEntity("OwnedItem", itemId);
+			let item = source.getEmbeddedEntity("Item", itemId);
 
 			// Move all items if we select more than the quantity.
-			if (item.data.qtd < quantity) {
-				quantity = item.data.qtd;
+			if (item.data.data.qtd < quantity) {
+				quantity = item.data.data.qtd;
 			}
 
 			let newItem = duplicate(item);
-			const update = { _id: itemId, "data.qtd": item.data.qtd - quantity };
+			const update = { _id: itemId, "data.qtd": item.data.data.qtd - quantity };
 
 			if (update["data.qtd"] === 0) {
 				deletes.push(itemId);
@@ -1315,35 +1208,28 @@ Hooks.once("init", () => {
 				updates.push(update);
 			}
 
-			newItem.data.qtd = quantity;
+			newItem.data.data.qtd = quantity;
 			results.push({
 				item: newItem,
 				quantity: quantity
 			});
-			let destItem = destination.data.items.find(i => i.name == newItem.name);
-			if (destItem === undefined) {
-				additions.push(newItem);
-			} else {
-				//console.log("Existing Item");
-				destItem.data.qtd = Number(destItem.data.qtd) + Number(newItem.data.qtd);
-				destUpdates.push(destItem);
-			}
+			additions.push(newItem);
 		}
 
 		if (deletes.length > 0) {
-			await source.deleteEmbeddedEntity("OwnedItem", deletes);
+			await source.deleteEmbeddedEntity("Item", deletes);
 		}
 
 		if (updates.length > 0) {
-			await source.updateEmbeddedEntity("OwnedItem", updates);
+			await source.updateEmbeddedEntity("Item", updates);
 		}
 
 		if (additions.length > 0) {
-			await destination.createEmbeddedEntity("OwnedItem", additions);
+			await destination.createEmbeddedEntity("Item", additions);
 		}
 
 		if (destUpdates.length > 0) {
-			await destination.updateEmbeddedEntity("OwnedItem", destUpdates);
+			await destination.updateEmbeddedDocuments("Item", destUpdates);
 		}
 
 		return results;
@@ -1361,11 +1247,11 @@ Hooks.once("init", () => {
 	}
 
 	async function transaction(seller, buyer, itemId, quantity) {
-		let sellItem = seller.getEmbeddedEntity("OwnedItem", itemId);
+		let sellItem = seller.getEmbeddedEntity("Item", itemId);
 
 		// If the buyer attempts to buy more then what's in stock, buy all the stock.
-		if (sellItem.data.qtd < quantity) {
-			quantity = sellItem.data.qtd;
+		if (sellItem.data.data.qtd < quantity) {
+			quantity = sellItem.data.data.qtd;
 		}
 
 		// On negative quantity we show an error
@@ -1373,16 +1259,16 @@ Hooks.once("init", () => {
 			errorMessageToActor(buyer, `Não é possível comprar uma quantidade negativa de itens.`);
 			return;
 		}
-
 		// On 0 quantity skip everything to avoid error down the line
-		if (quantity == 0) {
+		else if (quantity == 0) {
+			errorMessageToActor(buyer, `Não existem itens suficientes no vendedor.`);
 			return;
 		}
 
 		let sellerModifier = seller.getFlag("fichaloott20", "priceModifier");
 		if (!sellerModifier) sellerModifier = 1.0;
 
-		let itemCost = Math.round(sellItem.data.preco * sellerModifier * 100) / 100;
+		let itemCost = Math.round(sellItem.data.data.preco * sellerModifier * 100) / 100;
 		itemCost *= quantity;
 		let buyerFunds = duplicate(buyer.data.data.detalhes.dinheiro);
 		if (buyerFunds["tt"] != undefined) delete buyerFunds["tt"];
@@ -1403,8 +1289,6 @@ Hooks.once("init", () => {
 			+ buyerFunds["tp"] * conversionRates["tp"]
 			+ buyerFunds["tc"] * conversionRates["tc"];
 
-		// console.log(`buyerFundsAsPlatinum : ${buyerFundsAsPlatinum}`);
-		
 		if (itemCostInPlatinum > buyerFundsAsPlatinum) {
 			errorMessageToActor(buyer, `Dinheiro insuficiente para comprar o item.`);
 			return;
@@ -1453,12 +1337,9 @@ Hooks.once("init", () => {
 			}
 		}
 
-		// console.log(`Smoothing out`);
 		// Finally we exchange partial coins with as little change as possible
 		for (let currency in buyerFunds) {
 			let amount = buyerFunds[currency]
-
-			// console.log(`${currency} : ${amount}: ${conversionRates[currency]}`);
 
 			// We round to 5 decimals. 1 pp is 1000cp, so 5 decimals always rounds good enough
 			// We need to round because otherwise we get 15.99999999999918 instead of 16 due to floating point precision
@@ -1466,7 +1347,6 @@ Hooks.once("init", () => {
 			let newFund = Math.floor(Math.round(amount * 1e5) / 1e5);
 			buyerFunds[currency] = newFund;
 
-			// console.log(`New Buyer funds ${currency}: ${buyerFunds[currency]}`);
 			let compCurrency = compensationCurrency[currency]
 
 			// We dont care about fractions of CP
@@ -1474,7 +1354,6 @@ Hooks.once("init", () => {
 				// We calculate the amount of lower currency we get for the fraction of higher currency we have
 				let toAdd = Math.round((amount - newFund) * 1e5) / 1e5 * conversionRates[compCurrency]
 				buyerFunds[compCurrency] += toAdd
-				// console.log(`Added ${toAdd} to ${compCurrency} it is now ${buyerFunds[compCurrency]}`);
 			}
 		}
 
@@ -1495,24 +1374,19 @@ Hooks.once("init", () => {
 		let observers = [];
 				let players = game.users.players;
 
-		//console.log("Ficha Loot | actorData", actorData);
 		// Calculate observers
 				for (let player of players) {
 						let playerPermission = LootSheet5eNPCHelper.getLootPermissionForPlayer(actorData, player);
 						if (player != "default" && playerPermission >= 2) {
-				//console.log("Ficha Loot | player", player);
 				let actor = game.actors.get(player.data.character);
-				//console.log("Ficha Loot | actor", actor);
 				if (actor !== null && (player.data.role === 1 || player.data.role === 2)) observers.push(actor);
 			}
 		}
 
-		//console.log("Ficha Loot | observers", observers);
 		if (observers.length === 0) return;
 
 		// Calculate split of currency
 		let currencySplit = duplicate(actorData.data.detalhes.dinheiro);
-		//console.log("Ficha Loot | Currency data", currencySplit);
 
 		// keep track of the remainder
 		let currencyRemainder = {};
@@ -1521,7 +1395,6 @@ Hooks.once("init", () => {
 			if (observers.length) {
 				// calculate remainder
 				currencyRemainder[c] = (currencySplit[c] % observers.length);
-				//console.log("Remainder: " + currencyRemainder[c]);
 
 				currencySplit[c] = Math.floor(currencySplit[c] / observers.length);
 			}
@@ -1531,26 +1404,21 @@ Hooks.once("init", () => {
 		// add currency to actors existing coins
 		let msg = [];
 		for (let u of observers) {
-			//console.log("Ficha Loot | u of observers", u);
 			if (u === null) continue;
 
 			msg = [];
 			let currency = u.data.data.detalhes.dinheiro,
 				newCurrency = duplicate(u.data.data.detalhes.dinheiro);
 
-			//console.log("Ficha Loot | Current Currency", currency);
-
 			for (let c in currency) {
 				// add msg for chat description
 				if (currencySplit[c]) {
-					//console.log("Ficha Loot | New currency for " + c, currencySplit[c]);
 					msg.push(` ${currencySplit[c]} ${c}`)
 				}
 
 				// Add currency to permitted actor
 				newCurrency[c] = parseInt(currency[c] || 0) + currencySplit[c];
 
-				//console.log("Ficha Loot | New Currency", newCurrency);
 				u.update({
 					'data.detalhes.dinheiro': newCurrency
 				});
@@ -1591,19 +1459,15 @@ Hooks.once("init", () => {
 		let actorData = containerActor.data
 
 		let sheetCurrency = actorData.data.detalhes.dinheiro;
-		//console.log("Ficha Loot | Currency data", currency);
 
 		// add currency to actors existing coins
 		let msg = [];
 		let currency = looter.data.data.detalhes.dinheiro,
 			newCurrency = duplicate(looter.data.data.detalhes.dinheiro);
 
-		//console.log("Ficha Loot | Current Currency", currency);
-
 		for (let c in currency) {
 			// add msg for chat description
 			if (sheetCurrency[c].value) {
-				//console.log("Ficha Loot | New currency for " + c, currencySplit[c]);
 				msg.push(` ${sheetCurrency[c].value} ${c} coins`)
 			}
 			if (sheetCurrency[c].value != null) {
