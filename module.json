@@ -2,9 +2,9 @@
 	"name": "fichaloott20",
 	"title": "Ficha Loot T20",
 	"description": "Este módulo adiciona uma ficha de NPC que pode ser usada como baú de tesouros ou loja.",
-	"version": "1.1.0",
-	"minimumCoreVersion": "0.8.6",
-	"compatibleCoreVersion": "0.8.6",
+	"version": "1.0.16",
+	"minimumCoreVersion": "0.7.7",
+	"compatibleCoreVersion": "0.7.9",
 	"author": "Matheus Clemente (mclemente)",
 	"systems": ["tormenta20"],
   "esmodules": ["/lootsheetnpc5e.js"],
@@ -21,6 +21,6 @@
   ],
 	"socket": true,
 	"url": "https://github.com/mclemente/fvtt-ficha-loot-t20",
-	"manifest": "https://github.com/mclemente/fvtt-ficha-loot-t20/releases/latest/download/module.json",
-	"download": "https://github.com/mclemente/fvtt-ficha-loot-t20/releases/latest/download/module.zip"
+	"manifest": "https://raw.githubusercontent.com/mclemente/fvtt-ficha-loot-t20/master/module.json",
+	"download": "https://github.com/mclemente/fvtt-ficha-loot-t20/archive/master.zip"
 }
